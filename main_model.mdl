@@ -1,0 +1,252 @@
+{UTF-8}
+Cost Accumulated=
+	Cost Accumulation Rate*FINAL TIME
+	~	USD
+	~		|
+
+Resource Consumption=
+	INTEGER((Resource consumption rate+"resource/hour")*FINAL TIME)
+	~	vCPUs
+	~		|
+
+Resource Provisioning=
+	Resource Provisioning Rate*FINAL TIME
+	~	vCPUs
+	~		|
+
+"Users/Hour"= INTEG (
+	Total Users/FINAL TIME,
+		10)
+	~	User/Hour [?,?,2]
+	~		|
+
+Autoscaling Trigger=
+	IF THEN ELSE(((Resource consumption rate/Available Cloud Resources)>0.8), 1 , 0 )
+	~	Dmnl [0,1]
+	~		|
+
+Available Cloud Resources= INTEG (
+	INTEGER(Resource Consumption-Resource Provisioning),
+		20000)
+	~	vCPUs
+	~		|
+
+"Average resource Usage/Request"=
+	Resource Consumption/Total Request
+	~	vCPUs/requests
+	~		|
+
+Base Cost=
+	100
+	~	USD/vCPUs [?,?,2]
+	~		|
+
+Cloud Cost= INTEG (
+	Cost Accumulated+Resource provisioning cost,
+		250)
+	~	USD
+	~		|
+
+Cost Accumulation Rate= INTEG (
+	Resource Consumption*"Total cost/resourse unit"/100,
+		0)
+	~	USD/Hour
+	~		|
+
+"Cost/Resouce Unit/Hour"=
+	Base Cost+Dynamic Pricing Adjustment
+	~	USD/vCPUs
+	~		|
+
+Dynamic Pricing Adjustment= INTEG (
+	2,
+		20)
+	~	USD/vCPUs [20,?,5]
+	~		|
+
+Efficiency Factor=
+	Available Cloud Resources/Max Resource Capacity
+	~	Dmnl
+	~		|
+
+Max Resource Capacity=
+	INTEGER(20000)
+	~	vCPUs
+	~		|
+
+"Requests/User"=
+	INTEGER(5)
+	~	requests/User
+	~		|
+
+Resource consumption rate= INTEG (
+	INTEGER(Workload Intensity*"Average resource Usage/Request"),
+		0)
+	~	vCPUs/Hour
+	~		|
+
+Resource provisioning cost=
+	Resource Provisioning Rate*"Cost/Resouce Unit/Hour"
+	~	USD
+	~		|
+
+Resource Provisioning Rate= INTEG (
+	Autoscaling Trigger,
+		0.2)
+	~	vCPUs/Hour
+	~		|
+
+"resource/hour"=
+	Cloud Cost/"Cost/Resouce Unit/Hour"
+	~	vCPUs/Hour
+	~		|
+
+"Total cost/resourse unit"=
+	"Cost/Resouce Unit/Hour"/100
+	~	USD/vCPUs
+	~		|
+
+Total Request=
+	"Requests/User"*Total Users
+	~	requests
+	~		|
+
+Total Users= INTEG (
+	5,
+		10)
+	~	User [0,?,5]
+	~		|
+
+Workload Intensity=
+	"Users/Hour"*"Requests/User"/Efficiency Factor
+	~	requests/Hour
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 100
+	~	Hour
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Hour
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Hour [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 1
+	~	Hour [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,55,0
+10,1,Available Cloud Resources,1363,271,71,29,3,3,0,16,-1,3,0,0,0-0-0,0-0-0,|||0-0-0,0,0,0,0,0,0
+10,2,Cloud Cost,1513,451,48,24,3,3,0,0,-1,3,0,0,0,0,0,0,0,0
+10,3,Resource consumption rate,547,302,67,24,8,3,0,16,-1,0,0,0,0-0-0,0-0-0,||U|0-0-0,0,0,0,0,0,0
+10,4,Resource Provisioning Rate,1340,36,68,21,8,3,0,16,-1,0,0,0,0-0-0,0-0-0,||U|0-0-0,0,0,0,0,0,0
+10,5,Cost Accumulation Rate,1814,509,71,24,8,3,0,16,-1,0,0,0,0-0-0,0-0-0,||U|0-0-0,0,0,0,0,0,0
+1,6,5,36,1,0,43,0,0,192,0,-1--1--1,,1|(1789,463)|
+10,7,"Cost/Resouce Unit/Hour",2093,365,53,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,8,Autoscaling Trigger,1067,77,62,25,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,9,Workload Intensity,952,524,50,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,10,Efficiency Factor,1187,378,37,25,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,11,9,3,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+1,12,7,56,1,0,43,0,0,192,0,-1--1--1,,1|(2100,462)|
+1,13,8,4,1,0,43,0,0,192,0,-1--1--1,,1|(1173,30)|
+1,14,1,8,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+1,15,4,33,1,0,43,0,0,192,0,-1--1--1,,1|(1512,72)|
+1,16,1,10,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+10,17,"Users/Hour",582,482,48,19,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,18,"Requests/User",595,662,54,10,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,19,17,9,1,0,43,0,0,192,0,-1--1--1,,1|(753,552)|
+1,20,18,9,1,0,43,0,0,192,0,-1--1--1,,1|(789,646)|
+1,21,3,8,1,0,0,0,0,192,0,-1--1--1,,1|(840,108)|
+10,22,Max Resource Capacity,1331,440,53,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,23,22,10,1,0,45,0,0,192,0,-1--1--1,,1|(1258,419)|
+10,24,Base Cost,2264,250,39,10,8,3,0,16,-1,1,0,0,0-0-0,0-0-0,|||0-0-0,0,0,0,0,0,0
+10,25,Dynamic Pricing Adjustment,2336,356,60,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,26,24,7,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+1,27,25,7,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+10,28,Resource Consumption,924,271,52,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,29,3,28,1,0,43,0,0,192,0,-1--1--1,,1|(738,300)|
+10,30,"Average resource Usage/Request",419,123,66,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,31,28,30,1,0,43,0,0,192,0,-1--1--1,,1|(729,105)|
+1,32,30,3,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+10,33,Resource Provisioning,1602,153,46,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,34,33,1,1,0,43,0,0,192,0,-1--1--1,,1|(1504,171)|
+1,35,28,1,1,0,45,0,0,192,0,-1--1--1,,1|(1124,253)|
+10,36,Cost Accumulated,1736,399,53,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,37,36,2,1,0,43,0,0,192,0,-1--1--1,,1|(1626,430)|
+10,38,Resource Consumption,1700,663,54,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,39,38,5,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+10,40,Total Users,513,385,42,10,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,41,40,17,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+1,42,40,43,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+10,43,Total Request,342,431,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,44,18,43,1,0,43,0,0,192,0,-1--1--1,,1|(441,597)|
+1,45,43,30,1,0,45,0,0,192,0,-1--1--1,,1|(301,248)|
+1,46,2,52,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+1,47,10,9,0,0,45,0,0,192,0,-1--1--1,,1|(0,0)|
+10,48,Resource provisioning cost,1581,322,62,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,49,4,48,1,0,43,0,0,192,0,-1--1--1,,1|(1503,198)|
+1,50,7,48,1,0,43,0,0,192,0,-1--1--1,,1|(1863,319)|
+1,51,48,2,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+10,52,"resource/hour",1308,625,65,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,53,"Cost/Resouce Unit/Hour",1291,717,57,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,54,53,52,1,0,45,0,0,192,0,-1--1--1,,1|(1307,673)|
+1,55,52,28,1,0,0,0,0,192,0,-1--1--1,,1|(1094,489)|
+10,56,"Total cost/resourse unit",2023,579,65,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,57,56,5,0,0,43,0,0,192,0,-1--1--1,,1|(0,0)|
+10,58,FINAL TIME,856,388,51,15,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,59,58,28,1,0,0,0,0,192,0,-1--1--1,,1|(890,343)|
+1,60,58,17,1,0,0,0,0,192,0,-1--1--1,,1|(733,453)|
+10,61,FINAL TIME,1825,143,33,29,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,62,61,33,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
+1,63,61,36,1,0,0,0,0,192,0,-1--1--1,,1|(1797,276)|
+///---\\\
+:L<%^E!@
+1:current1.vdfx
+4:Time
+5:Max Resource Capacity
+9:current1
+19:55,0
+24:0
+25:100
+26:100
+23:0
+15:0,0,0,0,0,0
+27:0,
+34:0,
+42:0
+72:0
+73:0
+95:0
+96:0
+97:0
+77:0
+78:0
+102:1
+93:0
+94:0
+92:0
+91:0
+90:0
+87:0
+75:
+43:
+103:8,8,8,3,8
+105:0,0,0,0,0,0,0,0,0,0
+104:Vensim Sans|12||0-0-0|0-0-0|-1--1--1|0-0-255|192-192-192|-1--1--1
