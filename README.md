@@ -8,3 +8,6 @@ Key outcomes include:
 🔷Validation of the SD model through sensitivity analysis and real-world data simulations.
 
 This research equips cloud service managers with tools to improve resource utilization, control costs, and achieve sustainability in cloud operations.
+
+![modelimg](https://github.com/user-attachments/assets/68bf0114-9c28-4196-ad57-391de8a48ab9)
+
